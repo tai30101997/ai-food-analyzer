@@ -1,7 +1,10 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+const nextConfig = {
+  output: "standalone",
+  experimental: {
+    serverActions: {
+      allowedOrigins: process.env.ALLOWED_ORIGINS?.split(','),
+    },
+  },
 };
 
 export default nextConfig;

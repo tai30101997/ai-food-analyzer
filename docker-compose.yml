@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-food-analyzer
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./credentials:/app/credentials
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./entrypoint.sh:/entrypoint.sh
+    restart: unless-stopped
+    healthcheck:
+      test: curl --fail http://localhost:11434 || exit 1
+      interval: 10s
+      retries: 5
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+
+volumes:
+  ollama_data:

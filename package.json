@@ -2,6 +2,7 @@
   "name": "ai-food-analyzer",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,19 +10,34 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@google-cloud/vision": "^5.2.0",
+    "@headlessui/react": "^2.2.4",
+    "@langchain/core": "^0.3.61",
+    "@langchain/ollama": "^0.2.3",
+    "@langchain/openai": "^0.5.15",
+    "@mui/material": "^7.1.2",
+    "axios": "^1.10.0",
+    "dotenv": "^16.5.0",
+    "langchain": "^0.3.29",
+    "next": "15.3.4",
+    "openai": "^5.6.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.4"
+    "react-markdown": "^10.1.0",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20.19.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.4",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }
