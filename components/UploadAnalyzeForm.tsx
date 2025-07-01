@@ -62,7 +62,7 @@ export default function UploadAnalyzeForm() {
         setDishName(label);
 
         const analyzeRes = await axios.post("/api/analyze", {
-          dishName: "Phở Gà",
+          dishName: label,
         });
 
         const analyzeData = analyzeRes.data;
