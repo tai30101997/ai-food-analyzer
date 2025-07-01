@@ -50,6 +50,6 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
    - Environment variables are configured in `.env.local` or `.env.docker`.
    - The app can be run locally (`npm run dev`) or deployed using Docker (`docker-compose.dev.yml`, `Dockerfile`).
 
+![image](https://github.com/user-attachments/assets/1e296210-6bd5-4793-8133-f392fd9998e3)
 
-![image](https://github.com/user-attachments/assets/e4b90111-b3a4-4dee-ab8c-fa1dccb140ef)
 
