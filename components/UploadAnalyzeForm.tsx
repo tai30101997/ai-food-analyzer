@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import axios from "axios";
+import { useEffect, useRef } from "react";
 
 interface AnalysisResult {
   ingredients: string[];
@@ -20,6 +21,7 @@ export default function UploadAnalyzeForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
+  const isMounted = useRef(true);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,7 +41,12 @@ export default function UploadAnalyzeForm() {
     setImageFile(file);
     setPreviewUrl(URL.createObjectURL(file));
   };
-
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
   const handleAnalyze = async () => {
     if (!imageFile) return;
 
@@ -51,6 +58,7 @@ export default function UploadAnalyzeForm() {
 
     try {
       const reader = new FileReader();
+
       reader.onloadend = async () => {
         const base64 = reader.result as string;
 
@@ -60,15 +68,14 @@ export default function UploadAnalyzeForm() {
         });
 
         const label = detectRes.data.label;
-        if (!label) {
+        if (!label || !isMounted.current) {
           setError("Could not recognize the dish from the image.");
-          setLoading(false);
           setStatusMessage("");
+          setLoading(false);
           return;
         }
-        console.log("Detected dish:", detectRes.data);
-        setDishName(label);
 
+        setDishName(label);
         setStatusMessage(`🍜 Dish detected: ${label}. Analyzing nutrition...`);
 
         const analyzeRes = await axios.post("/api/analyze", {
@@ -76,30 +83,29 @@ export default function UploadAnalyzeForm() {
         });
 
         const analyzeData = analyzeRes.data;
-        if (!analyzeData) {
-          setError("Failed to analyze the dish.");
-          setLoading(false);
-          setStatusMessage("");
-          return;
-        }
-
         const jsonMatch = analyzeData.result.match(/\{[\s\S]*\}/);
         const parsed: AnalysisResult = jsonMatch
           ? JSON.parse(jsonMatch[0])
           : null;
 
-        setResult(parsed);
-        setStatusMessage("✅ Analysis complete!");
+        if (isMounted.current) {
+          setResult(parsed);
+          setStatusMessage("✅ Analysis complete!");
+        }
       };
 
       reader.readAsDataURL(imageFile);
     } catch (err) {
       console.error("Error:", err);
-      setError("An error occurred during analysis.");
-      setStatusMessage("");
+      if (isMounted.current) {
+        setError("An error occurred during analysis.");
+        setStatusMessage("");
+      }
+    } finally {
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
-
-    setLoading(false);
   };
 
   return (
