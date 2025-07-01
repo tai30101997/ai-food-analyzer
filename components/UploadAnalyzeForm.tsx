@@ -9,7 +9,9 @@ interface AnalysisResult {
   estimatedCalories: number;
   suitableFor: string[];
 }
+
 const maxFileSize = 10 * 1024 * 1024; // 10MB
+
 export default function UploadAnalyzeForm() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -17,6 +19,7 @@ export default function UploadAnalyzeForm() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -31,6 +34,7 @@ export default function UploadAnalyzeForm() {
       setError("Image must be smaller than 10MB!");
       return;
     }
+
     setError("");
     setImageFile(file);
     setPreviewUrl(URL.createObjectURL(file));
@@ -42,12 +46,15 @@ export default function UploadAnalyzeForm() {
     setLoading(true);
     setResult(null);
     setDishName("");
+    setError("");
+    setStatusMessage("🔍 Reading image...");
 
     try {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const base64 = reader.result as string;
 
+        setStatusMessage("🧠 Detecting dish name with AI...");
         const detectRes = await axios.post("/api/detect/llava", {
           base64Image: base64,
         });
@@ -56,32 +63,40 @@ export default function UploadAnalyzeForm() {
         if (!label) {
           setError("Could not recognize the dish from the image.");
           setLoading(false);
+          setStatusMessage("");
           return;
         }
-
+        console.log("Detected dish:", detectRes.data);
         setDishName(label);
+
+        setStatusMessage(`🍜 Dish detected: ${label}. Analyzing nutrition...`);
 
         const analyzeRes = await axios.post("/api/analyze", {
           dishName: label,
         });
 
         const analyzeData = analyzeRes.data;
-        if (!analyzeData || !analyzeData.result) {
+        if (!analyzeData) {
           setError("Failed to analyze the dish.");
           setLoading(false);
+          setStatusMessage("");
           return;
         }
+
         const jsonMatch = analyzeData.result.match(/\{[\s\S]*\}/);
         const parsed: AnalysisResult = jsonMatch
           ? JSON.parse(jsonMatch[0])
           : null;
+
         setResult(parsed);
+        setStatusMessage("✅ Analysis complete!");
       };
 
       reader.readAsDataURL(imageFile);
     } catch (err) {
       console.error("Error:", err);
       setError("An error occurred during analysis.");
+      setStatusMessage("");
     }
 
     setLoading(false);
@@ -115,8 +130,12 @@ export default function UploadAnalyzeForm() {
         disabled={loading || !imageFile}
         className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
       >
-        {loading ? "Analyzing..." : "Analyze"}
+        {loading ? "Loading..." : "Analyze Dish"}
       </button>
+
+      {statusMessage && (
+        <p className="mt-2 text-sm text-blue-600 italic">{statusMessage}</p>
+      )}
 
       {dishName && (
         <p className="mt-4 text-sm text-gray-600">
