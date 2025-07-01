@@ -9,7 +9,7 @@ interface AnalysisResult {
   estimatedCalories: number;
   suitableFor: string[];
 }
-
+const maxFileSize = 10 * 1024 * 1024; // 10MB
 export default function UploadAnalyzeForm() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -27,11 +27,10 @@ export default function UploadAnalyzeForm() {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > maxFileSize) {
       setError("Image must be smaller than 10MB!");
       return;
     }
-
     setError("");
     setImageFile(file);
     setPreviewUrl(URL.createObjectURL(file));
@@ -49,7 +48,7 @@ export default function UploadAnalyzeForm() {
       reader.onloadend = async () => {
         const base64 = reader.result as string;
 
-        const detectRes = await axios.post("/api/detect-label", {
+        const detectRes = await axios.post("/api/detect/llava", {
           base64Image: base64,
         });
 
@@ -62,19 +61,20 @@ export default function UploadAnalyzeForm() {
 
         setDishName(label);
 
-        const analyzeRes = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ dishName: label }),
+        const analyzeRes = await axios.post("/api/analyze", {
+          dishName: "Phở Gà",
         });
 
-        const analyzeData = await analyzeRes.json();
-
+        const analyzeData = analyzeRes.data;
+        if (!analyzeData || !analyzeData.result) {
+          setError("Failed to analyze the dish.");
+          setLoading(false);
+          return;
+        }
         const jsonMatch = analyzeData.result.match(/\{[\s\S]*\}/);
         const parsed: AnalysisResult = jsonMatch
           ? JSON.parse(jsonMatch[0])
           : null;
-
         setResult(parsed);
       };
 

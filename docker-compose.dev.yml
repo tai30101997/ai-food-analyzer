@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./entrypoint.sh:/entrypoint.sh
+    restart: unless-stopped
+    healthcheck:
+      test: curl --fail http://localhost:11434 || exit 1
+      interval: 10s
+      retries: 5
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+
+volumes:
+  ollama_data:

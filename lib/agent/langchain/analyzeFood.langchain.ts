@@ -1,7 +1,7 @@
 // lib/agent/analyzeFoodAgent.ts
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { LLMSource } from "lib/utils/type";
-import { analyzeFoodPrompt } from "../prompts/analyzeFoodPrompt";
+import { analyzeFoodPrompt } from "../prompts";
 import { analyzeFoodTool } from "../tool";
 import { OpenAgent } from "./openAgent";
 

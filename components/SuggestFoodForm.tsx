@@ -23,7 +23,12 @@ export default function SuggestFoodForm() {
 
     try {
       const res = await axios.post("/api/suggest", { userQuery: query });
-
+      if (!res.data || !res.data.result) {
+        console.error("Invalid response format:", res.data);
+        setResults([]);
+        setLoading(false);
+        return;
+      }
       const allMatches = res.data.result.match(/\[\s*\{[\s\S]*?\}\s*\]/g);
 
       console.log("Full response text:", res.data.result);
@@ -76,40 +81,38 @@ export default function SuggestFoodForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {results.map((item, index) => (
-          <>
 
-            <div
-              key={index}
-              className="border rounded-lg overflow-hidden shadow-sm bg-white"
-            >
+          <div
+            key={index}
+            className="border rounded-lg overflow-hidden shadow-sm bg-white"
+          >
 
-              <img
-                src={
-                  item.image?.includes("google.com/search")
-                    ? "/fallback-dish.jpeg"
-                    : item.image || "/fallback-dish.jpeg"
-                }
-                alt={item.dish}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-1">{item.dish}</h3>
-                <p className="text-sm text-gray-600 mb-1">
-                  🔥 Calories: {item.estimatedCalories}
-                </p>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {item.suitableFor.map((diet, i) => (
-                    <span
-                      key={i}
-                      className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"
-                    >
-                      {diet}
-                    </span>
-                  ))}
-                </div>
+            <img
+              src={
+                item.image?.includes("google.com/search")
+                  ? "/fallback-dish.jpeg"
+                  : item.image || "/fallback-dish.jpeg"
+              }
+              alt={item.dish}
+              className="w-full h-48 object-cover"
+            />
+            <div className="p-4">
+              <h3 className="text-lg font-semibold mb-1">{item.dish}</h3>
+              <p className="text-sm text-gray-600 mb-1">
+                🔥 Calories: {item.estimatedCalories}
+              </p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {item.suitableFor.map((diet, i) => (
+                  <span
+                    key={i}
+                    className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full"
+                  >
+                    {diet}
+                  </span>
+                ))}
               </div>
             </div>
-          </>
+          </div>
         ))}
       </div>
     </div>

@@ -3,13 +3,13 @@ import { analyzeFoodAgent } from "../../../../lib/agent/langchain/index"
 
 export async function POST(request: NextRequest) {
   try {
-    const { dishname } = await request.json();
-    console.log("Received dishName:", dishname);
-    if (!dishname) {
+    const { dishName } = await request.json();
+    console.log("Received dishName:", dishName);
+    if (!dishName) {
       return NextResponse.json({ error: "Dish name is required" }, { status: 400 });
     }
 
-    const result = await analyzeFoodAgent(dishname);
+    const result = await analyzeFoodAgent(dishName);
     return NextResponse.json({ result });
   } catch (error) {
     console.error("Error in analyzeFoodAgent:", error);

@@ -7,7 +7,7 @@ export class OpenAILLMRepository implements ILLMRepository {
 
   constructor(apiKey: string) {
     this.llm = new ChatOpenAI({
-      modelName: process.env.MODEL_NAME || "gpt-3.5-turbo",
+      modelName: process.env.OPENAI_MODEL_NAME || "gpt-3.5-turbo",
       temperature: 0.7,
       openAIApiKey: process.env.OPENAI_API_KEY || apiKey,
     });
